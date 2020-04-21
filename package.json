@@ -1,0 +1,26 @@
+{
+  "name": "sjp-scraper",
+  "version": "0.1.0",
+  "scripts": {
+    "clean": "bsb -clean-world",
+    "build": "bsb -make-world",
+    "watch": "bsb -make-world -w",
+    "start": "node src/Index.bs.js > output.json"
+  },
+  "keywords": [
+    "BuckleScript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "bs-platform": "^7.1.0"
+  },
+  "dependencies": {
+    "bs-cheerio": "^0.1.4",
+    "bs-fetch": "^0.5.2",
+    "bs-promise-monad": "^0.4.0",
+    "bs-webapi": "^0.15.9",
+    "decco": "^1.2.0",
+    "isomorphic-fetch": "^2.2.1"
+  }
+}
