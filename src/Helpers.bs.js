@@ -56,6 +56,10 @@ function open_languages(prim) {
   return ExternalJs.open_languages(prim);
 }
 
+function pointer_of_od(prim) {
+  return ExternalJs.pointer_of_od(prim);
+}
+
 var $question$question = Belt_Option.flatMap;
 
 var $caret$neg$caret = Belt_Result.flatMap;
@@ -75,5 +79,6 @@ exports.get_null_or = get_null_or;
 exports.hd_tl_arr = hd_tl_arr;
 exports.partitions = partitions;
 exports.open_languages = open_languages;
+exports.pointer_of_od = pointer_of_od;
 exports.Operators = Operators;
 /* util Not a pure module */

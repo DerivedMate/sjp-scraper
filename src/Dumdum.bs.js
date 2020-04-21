@@ -9,7 +9,6 @@ var Cheerio = require("cheerio");
 var Caml_obj = require("bs-platform/lib/js/caml_obj.js");
 var Belt_Array = require("bs-platform/lib/js/belt_Array.js");
 var Caml_array = require("bs-platform/lib/js/caml_array.js");
-var Belt_Option = require("bs-platform/lib/js/belt_Option.js");
 var ExternalJs = require("./external.js");
 var Cheerio$BsCheerio = require("bs-cheerio/src/Cheerio.bs.js");
 var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
@@ -130,20 +129,30 @@ function origin_map_decode(v) {
 }
 
 function origin_of_word(map, word) {
-  return Caml_array.caml_array_get(Belt_Option.getExn(Belt_Array.getBy(map, (function (param) {
-                        if (param.length !== 2) {
-                          throw [
-                                Caml_builtin_exceptions.match_failure,
-                                /* tuple */[
-                                  "Dumdum.re",
-                                  120,
-                                  24
-                                ]
-                              ];
-                        }
-                        var a = param[0];
-                        return Caml_obj.caml_equal(a, word);
-                      }))), 1);
+  var match = Belt_Array.getBy(map, (function (param) {
+          if (param.length !== 2) {
+            throw [
+                  Caml_builtin_exceptions.match_failure,
+                  /* tuple */[
+                    "Dumdum.re",
+                    120,
+                    32
+                  ]
+                ];
+          }
+          var a = param[0];
+          return Caml_obj.caml_equal(a, word);
+        }));
+  if (match !== undefined) {
+    var match$1 = match;
+    if (match$1.length !== 2) {
+      return word;
+    } else {
+      return match$1[1];
+    }
+  } else {
+    return word;
+  }
 }
 
 function origins_of_dom(dom, map) {
@@ -156,11 +165,17 @@ function origins_of_dom(dom, map) {
   if (match !== 0) {
     return explicit_origins;
   } else {
-    var origin = Helpers.get_null(Cheerio(Cheerio$BsCheerio.select(dom, ".pochodzenie > tbody > tr .pochodzenie_uwagi em").get(0)).text());
-    return [
-            Const.pointer_sig,
-            origin
-          ];
+    var ems = Cheerio$BsCheerio.select(dom, ".pochodzenie > tbody > tr .pochodzenie_uwagi em");
+    var em_count = ems.length;
+    var origin = em_count > 0 ? Helpers.get_null_or(Cheerio(ems.get(0)).text(), "") : Helpers.pointer_of_od(Helpers.get_null_or(Cheerio(Cheerio$BsCheerio.select(dom, ".pochodzenie_uwagi p").get(0)).text(), ""));
+    if (origin === "") {
+      return [Const.inline_origin_sig];
+    } else {
+      return [
+              Const.pointer_sig,
+              origin
+            ];
+    }
   }
 }
 

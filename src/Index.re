@@ -1,7 +1,7 @@
 [%raw "require('isomorphic-fetch')"];
 open PromiseMonad;
 open Belt.Array;
-let partition_size = 20;
+let partition_size = 12;
 
 let main = () => {
   Js.Console.timeStart("timer");
@@ -17,11 +17,11 @@ let main = () => {
       Dumdum.id_of_api(html)->Helpers.partitions(partition_size);
     }
   )
-  >>= (x => x->Belt.Array.slice(~offset=0, ~len=50)->Process.explode)
+  >>= (x => x->Belt.Array.slice(~offset=0, ~len=20)->Process.explode)
   >>- (_ => Js.Console.timeEnd("timer"))
   >>/ Js.Console.error;
 };
 
-// main();
+main();
 
-[|[|"53713"|]|]->Process.explode;
+// [|[|"53713"|]|]->Process.explode;

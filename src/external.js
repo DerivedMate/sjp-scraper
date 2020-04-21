@@ -49,9 +49,20 @@ const clean_declension = row =>
 const clean_conjugation = row => row.replace(/^\d\.\w+\./, '')
 const open_languages = path => fs.readFileSync(path, { encoding: 'utf8' })
 const nullish_op = (a, b) => a ?? b
+const pointer_of_od = p => {
+  let matches = /^(od\:|zob\.)\s*(.+)/i.exec(p)
+  if (matches && matches.length == 2) {
+    return matches[1].trim().toLocaleLowerCase()
+  } else if (matches && matches.length > 2) {
+    return matches[2].trim().toLocaleLowerCase()
+  } else {
+    return p
+  }
+}
 
 module.exports.f = f
 module.exports.fetch_id = fetch_id
 module.exports.clean_declension = clean_declension
 module.exports.clean_conjugation = clean_conjugation
 module.exports.open_languages = open_languages
+module.exports.pointer_of_od = pointer_of_od

@@ -116,9 +116,11 @@ let declension_of_dom = dom => {
 
 [@decco]
 type origin_map = array(array(string));
-let origin_of_word = (map, word) => {
-  map->Belt.Array.getBy(([|a, _|]) => a == word)->Belt.Option.getExn[1];
-};
+let origin_of_word = (map, word) =>
+  switch (map->Belt.Array.getBy(([|a, _|]) => a == word)) {
+  | Some([|_, a|]) => a
+  | _ => word
+  };
 let origins_of_dom = (dom, map) => {
   let explicit_origins =
     dom
@@ -131,15 +133,31 @@ let origins_of_dom = (dom, map) => {
 
   switch (explicit_origins->Belt.Array.length) {
   | 0 =>
+    let ems =
+      dom->Cheerio.select(".pochodzenie > tbody > tr .pochodzenie_uwagi em");
+    let em_count = ems->Element.length;
     let origin =
-      dom
-      ->Cheerio.select(".pochodzenie > tbody > tr .pochodzenie_uwagi em")
-      ->Element.get1(0)
-      ->Element.load
-      ->Element.text0
-      ->Helpers.get_null;
+      if (em_count > 0) {
+        ems
+        ->Element.get1(0)
+        ->Element.load
+        ->Element.text0
+        ->Helpers.get_null_or("");
+      } else {
+        dom
+        ->Cheerio.select(".pochodzenie_uwagi p")
+        ->Element.get1(0)
+        ->Element.load
+        ->Element.text0
+        ->Helpers.get_null_or("")
+        ->Helpers.pointer_of_od;
+      };
+    if (origin == "") {
+      [|Const.inline_origin_sig|];
+    } else {
+      [|Const.pointer_sig, origin|];
+    };
 
-    [|Const.pointer_sig, origin|];
   | _ => explicit_origins
   };
 };

@@ -4,5 +4,8 @@
 
 var pointer_sig = "<<pointer>>";
 
+var inline_origin_sig = "<<inline>>";
+
 exports.pointer_sig = pointer_sig;
+exports.inline_origin_sig = inline_origin_sig;
 /* No side effect */

@@ -37,6 +37,9 @@ let partitions = (arr, partition_size) =>
 [@bs.module "./external.js"]
 external open_languages: string => string = "open_languages";
 
+[@bs.module "./external.js"]
+external pointer_of_od: string => string = "pointer_of_od";
+
 module Operators = {
   let (??) = (a, b) => a->Belt.Option.flatMap(b);
   let (^-^) = (a, b) => a->Belt.Result.flatMap(b);

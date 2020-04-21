@@ -19,9 +19,9 @@ function main(param) {
                                     return Fetcher.fetch_api(l.toLocaleUpperCase());
                                   }))), (function (htmls) {
                             var html = Caml_splice_call.spliceObjApply("", "concat", [htmls]);
-                            return Helpers.partitions(Dumdum.id_of_api(html), 20);
+                            return Helpers.partitions(Dumdum.id_of_api(html), 12);
                           })), (function (x) {
-                        return Process.explode(Belt_Array.slice(x, 0, 50));
+                        return Process.explode(Belt_Array.slice(x, 0, 20));
                       })), (function (param) {
                     console.timeEnd("timer");
                     return /* () */0;
@@ -31,9 +31,9 @@ function main(param) {
               }));
 }
 
-Process.explode([["53713"]]);
+main(/* () */0);
 
-var partition_size = 20;
+var partition_size = 12;
 
 exports.partition_size = partition_size;
 exports.main = main;
