@@ -51,13 +51,16 @@ const open_languages = path => fs.readFileSync(path, { encoding: 'utf8' })
 const nullish_op = (a, b) => a ?? b
 const pointer_of_od = p => {
   let matches = /^(od\:|zob\.)\s*(.+)/i.exec(p)
+  let str
   if (matches && matches.length == 2) {
-    return matches[1].trim().toLocaleLowerCase()
+    str = matches[1]
   } else if (matches && matches.length > 2) {
-    return matches[2].trim().toLocaleLowerCase()
+    str = matches[2]
   } else {
-    return p
+    str = p
   }
+
+  return str.trim().toLocaleLowerCase()
 }
 
 module.exports.f = f
