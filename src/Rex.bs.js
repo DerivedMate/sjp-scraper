@@ -8,6 +8,18 @@ var Caml_option = require("bs-platform/lib/js/caml_option.js");
 
 var re_id_of_url = /\d+/;
 
+var re_pref = /\-$/;
+
+var re_pais = /\(państwo\)$/;
+
+var re_zob_fst = /zob\.\s*([a-ząęłóśćżźá]+)/iu;
+
+var re_zob_lst = /\s?([a-ząęłóśćżźá]+)\s?\(zob\.\)/iu;
+
+var re_od_fst = /od:?\s*([a-z\(\)ąęłóśćżźá]+)/iu;
+
+var re_od_lst = /od:?\s*([\w\(\)-ąęłóśćżźá]+\s?,?)+/iu;
+
 function id_of_url(url) {
   var match = re_id_of_url.exec(url);
   if (match !== null) {
@@ -24,5 +36,11 @@ function id_of_url(url) {
 }
 
 exports.re_id_of_url = re_id_of_url;
+exports.re_pref = re_pref;
+exports.re_pais = re_pais;
+exports.re_zob_fst = re_zob_fst;
+exports.re_zob_lst = re_zob_lst;
+exports.re_od_fst = re_od_fst;
+exports.re_od_lst = re_od_lst;
 exports.id_of_url = id_of_url;
 /* No side effect */

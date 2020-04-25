@@ -6,9 +6,9 @@ var Const = require("./Const.bs.js");
 var Decco = require("decco/src/Decco.js");
 var Helpers = require("./Helpers.bs.js");
 var Cheerio = require("cheerio");
-var Caml_obj = require("bs-platform/lib/js/caml_obj.js");
 var Belt_Array = require("bs-platform/lib/js/belt_Array.js");
 var Caml_array = require("bs-platform/lib/js/caml_array.js");
+var Caml_option = require("bs-platform/lib/js/caml_option.js");
 var ExternalJs = require("./external.js");
 var Cheerio$BsCheerio = require("bs-cheerio/src/Cheerio.bs.js");
 var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
@@ -141,34 +141,81 @@ function origin_of_word(map, word) {
                 ];
           }
           var a = param[0];
-          return Caml_obj.caml_equal(a, word);
+          return a === word;
         }));
   if (match !== undefined) {
     var match$1 = match;
     if (match$1.length !== 2) {
-      return word;
+      return "";
     } else {
       return match$1[1];
     }
   } else {
-    return word;
+    return "";
   }
 }
 
+function rex_pais(map, raw) {
+  var match = Belt_Array.getBy(map, (function (param) {
+          if (param.length !== 2) {
+            throw [
+                  Caml_builtin_exceptions.match_failure,
+                  /* tuple */[
+                    "Dumdum.re",
+                    127,
+                    26
+                  ]
+                ];
+          }
+          var k = param[0];
+          var clean_k = k.replace(".", "\\.");
+          var r = new RegExp(clean_k, "iu");
+          return r.test(raw);
+        }));
+  if (match !== undefined) {
+    var match$1 = match;
+    if (match$1.length !== 2) {
+      return ;
+    } else {
+      return match$1[1];
+    }
+  }
+  
+}
+
 function origins_of_dom(dom, map) {
-  var explicit_origins = Belt_Array.map(Cheerio$BsCheerio.select(dom, ".pochodzenie > tbody > tr .pochodzenie_jezyk").map((function (param, e) {
-                return Cheerio(e).text();
-              })).toArray(), (function (l) {
-          return origin_of_word(map, l.trim().toLocaleLowerCase());
+  var explicit_origins = Belt_Array.keep(Belt_Array.map(Cheerio$BsCheerio.select(dom, ".pochodzenie > tbody > tr .pochodzenie_jezyk").map((function (param, e) {
+                    return Cheerio(e).text();
+                  })).toArray(), (function (l) {
+              return origin_of_word(map, l.trim().toLocaleLowerCase());
+            })), (function (a) {
+          return a.length > 0;
         }));
   var match = explicit_origins.length;
   if (match !== 0) {
     return explicit_origins;
   } else {
-    var ems = Cheerio$BsCheerio.select(dom, ".pochodzenie > tbody > tr .pochodzenie_uwagi em");
-    var em_count = ems.length;
-    var origin = em_count > 0 ? Helpers.get_null_or(Cheerio(ems.get(0)).text(), "") : Helpers.pointer_of_od(Helpers.get_null_or(Cheerio(Cheerio$BsCheerio.select(dom, ".pochodzenie_uwagi p").get(0)).text(), ""));
-    if (origin === "") {
+    var raw = Helpers.get_null_or(Cheerio(Cheerio$BsCheerio.select(dom, ".pochodzenie_uwagi").get(1)).text(), "");
+    var match$1 = Rex.re_zob_fst.exec(raw);
+    var match$2 = Rex.re_zob_lst.exec(raw);
+    var match$3 = Rex.re_od_fst.exec(raw);
+    var match$4 = Rex.re_od_lst.exec(raw);
+    var arr = match$1 !== null ? match$1 : (
+        match$2 !== null ? match$2 : (
+            match$3 !== null ? match$3 : (
+                match$4 !== null ? match$4 : []
+              )
+          )
+      );
+    var match$5 = Helpers.arr_lst(arr);
+    var origin = match$5 !== undefined ? Helpers.get_null(Caml_option.valFromOption(match$5)).trim() : "";
+    var match$6 = rex_pais(map, raw);
+    if (match$6 !== undefined) {
+      return [match$6];
+    } else if (origin === "") {
+      if (raw !== "") {
+        console.error(raw);
+      }
       return [Const.inline_origin_sig];
     } else {
       return [
@@ -180,11 +227,19 @@ function origins_of_dom(dom, map) {
 }
 
 function adjective_of_dom(dom) {
-  return Helpers.partitions(Belt_Array.slice(Cheerio$BsCheerio.select(dom, ".odmiana tr").map((function (param, r) {
-                          return Belt_Array.sliceToEnd(Cheerio(r).contents().map((function (param, e) {
-                                              return Cheerio(e).text();
-                                            })).toArray(), 1);
-                        })).toArray(), 8, 35), 5);
+  var arr = Cheerio$BsCheerio.select(dom, ".odmiana tr").map((function (param, r) {
+            return Belt_Array.sliceToEnd(Cheerio(r).contents().map((function (param, e) {
+                                return Cheerio(e).text();
+                              })).toArray(), 1);
+          })).toArray();
+  var tmp;
+  try {
+    tmp = Belt_Array.slice(arr, 8, 35);
+  }
+  catch (exn){
+    tmp = arr;
+  }
+  return Helpers.partitions(tmp, 5);
 }
 
 exports.clean_declension = clean_declension;
@@ -198,6 +253,7 @@ exports.declension_of_dom = declension_of_dom;
 exports.origin_map_encode = origin_map_encode;
 exports.origin_map_decode = origin_map_decode;
 exports.origin_of_word = origin_of_word;
+exports.rex_pais = rex_pais;
 exports.origins_of_dom = origins_of_dom;
 exports.adjective_of_dom = adjective_of_dom;
 /* Helpers Not a pure module */

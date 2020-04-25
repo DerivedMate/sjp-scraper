@@ -119,8 +119,77 @@ type origin_map = array(array(string));
 let origin_of_word = (map, word) =>
   switch (map->Belt.Array.getBy(([|a, _|]) => a == word)) {
   | Some([|_, a|]) => a
-  | _ => word
+  | _ => ""
   };
+
+let rex_pais = (map, raw) => {
+  switch (
+    map->Belt.Array.getBy(([|k, v|]) => {
+      let clean_k = Js.String2.replace(k, ".", "\.");
+      let r = Js.Re.fromStringWithFlags(clean_k, ~flags="iu");
+      Js.Re.test_(r, raw);
+    })
+  ) {
+  | Some([|_, p|]) => Some(p)
+  | _ => None
+  };
+};
+/*
+ let origins_of_dom = (dom, map) => {
+   let explicit_origins =
+     dom
+     ->Cheerio.select(".pochodzenie > tbody > tr .pochodzenie_jezyk")
+     ->Element.map((_, e) => e->Element.load->Element.text0)
+     ->Element.toArray
+     ->Belt.Array.map(l =>
+         Js.String2.(l->trim->toLocaleLowerCase) |> origin_of_word(map)
+       )
+     ->Belt.Array.keep(a => a->Js.String2.length > 0);
+
+   switch (explicit_origins->Belt.Array.length) {
+   | 0 =>
+     let ems =
+       dom->Cheerio.select(".pochodzenie > tbody > tr .pochodzenie_uwagi em");
+     let em_count = ems->Element.length;
+     let origin =
+       if (em_count > 0) {
+         let fst =
+           ems
+           ->Element.get1(0)
+           ->Element.load
+           ->Element.text0
+           ->Helpers.get_null_or("");
+
+         if (fst == "" || Js.Re.test_(Rex.re_pref, fst)) {
+           ems
+           ->Element.get1(em_count - 1)
+           ->Element.load
+           ->Element.text0
+           ->Helpers.get_null_or("");
+         } else if (Js.Re.test_(Rex.re_pais, fst)) {
+           "";
+         } else {
+           fst;
+         };
+       } else {
+         dom
+         ->Cheerio.select(".pochodzenie_uwagi p")
+         ->Element.get1(0)
+         ->Element.load
+         ->Element.text0
+         ->Helpers.get_null_or("")
+         ->Helpers.pointer_of_od;
+       };
+     if (origin == "") {
+       [|Const.inline_origin_sig|];
+     } else {
+       [|Const.pointer_sig, origin|];
+     };
+
+   | _ => explicit_origins
+   };
+ };*/
+
 let origins_of_dom = (dom, map) => {
   let explicit_origins =
     dom
@@ -129,50 +198,74 @@ let origins_of_dom = (dom, map) => {
     ->Element.toArray
     ->Belt.Array.map(l =>
         Js.String2.(l->trim->toLocaleLowerCase) |> origin_of_word(map)
-      );
+      )
+    ->Belt.Array.keep(a => a->Js.String2.length > 0);
 
   switch (explicit_origins->Belt.Array.length) {
   | 0 =>
-    let ems =
-      dom->Cheerio.select(".pochodzenie > tbody > tr .pochodzenie_uwagi em");
-    let em_count = ems->Element.length;
-    let origin =
-      if (em_count > 0) {
-        ems
-        ->Element.get1(0)
-        ->Element.load
-        ->Element.text0
-        ->Helpers.get_null_or("");
-      } else {
-        dom
-        ->Cheerio.select(".pochodzenie_uwagi p")
-        ->Element.get1(0)
-        ->Element.load
-        ->Element.text0
-        ->Helpers.get_null_or("")
-        ->Helpers.pointer_of_od;
+    let raw =
+      dom
+      ->Cheerio.select(".pochodzenie_uwagi")
+      ->Element.get1(1)
+      ->Element.load
+      ->Element.text0
+      ->Helpers.get_null_or("");
+
+    let arr =
+      switch (
+        Js.Re.exec_(Rex.re_zob_fst, raw),
+        Js.Re.exec_(Rex.re_zob_lst, raw),
+        Js.Re.exec_(Rex.re_od_fst, raw),
+        Js.Re.exec_(Rex.re_od_lst, raw),
+      ) {
+      | (Some(r), _, _, _)
+      | (_, Some(r), _, _)
+      | (_, _, Some(r), _)
+      | (_, _, _, Some(r)) => r->Js.Re.captures
+      | _ => [||]
       };
-    if (origin == "") {
-      [|Const.inline_origin_sig|];
-    } else {
-      [|Const.pointer_sig, origin|];
+
+    let origin =
+      switch (Helpers.arr_lst(arr)) {
+      | Some(s) => s->Helpers.get_null->Js.String2.trim
+      | None => ""
+      };
+
+    switch (rex_pais(map, raw)) {
+    | Some(p) => [|p|]
+    | None =>
+      if (origin == "") {
+        if (raw != "") {
+          Js.Console.error(raw);
+        };
+        [|Const.inline_origin_sig|];
+      } else {
+        [|Const.pointer_sig, origin|];
+      }
     };
 
   | _ => explicit_origins
   };
 };
 
-let adjective_of_dom = dom =>
-  dom
-  ->Cheerio.select(".odmiana tr")
-  ->Element.map((_, r) =>
-      r
-      ->Element.load
-      ->Element.contents
-      ->Element.map((_, e) => e->Element.load->Element.text0)
-      ->Element.toArray
-      ->Belt.Array.sliceToEnd(1)
-    )
-  ->Element.toArray
-  ->Belt.Array.slice(~offset=8, ~len=35)
+let adjective_of_dom = dom => {
+  let arr =
+    dom
+    ->Cheerio.select(".odmiana tr")
+    ->Element.map((_, r) =>
+        r
+        ->Element.load
+        ->Element.contents
+        ->Element.map((_, e) => e->Element.load->Element.text0)
+        ->Element.toArray
+        ->Belt.Array.sliceToEnd(1)
+      )
+    ->Element.toArray;
+  (
+    switch (arr->Belt.Array.slice(~offset=8, ~len=35)) {
+    | exception _ => arr
+    | x => x
+    }
+  )
   ->Helpers.partitions(5);
+};

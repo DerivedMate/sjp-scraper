@@ -13,28 +13,36 @@ var Caml_splice_call = require("bs-platform/lib/js/caml_splice_call.js");
 
 function main(param) {
   console.time("timer");
-  return PromiseMonad.$great$great$slash(PromiseMonad.$great$great$neg(PromiseMonad.$great$great$eq(PromiseMonad.$great$great$neg(Promise.all(Belt_Array.map(Belt_Array.keep("a\xc4\x85bc\xc4\x87de".split(""), (function (a) {
-                                        return a.length > 0;
-                                      })), (function (l) {
-                                    return Fetcher.fetch_api(l.toLocaleUpperCase());
-                                  }))), (function (htmls) {
-                            var html = Caml_splice_call.spliceObjApply("", "concat", [htmls]);
-                            return Helpers.partitions(Dumdum.id_of_api(html), 12);
-                          })), (function (x) {
-                        return Process.explode(Belt_Array.slice(x, 0, 20));
-                      })), (function (param) {
-                    console.timeEnd("timer");
-                    return /* () */0;
-                  })), (function (prim) {
-                console.error(prim);
-                return /* () */0;
-              }));
+  console.log("[");
+  Process.main(Helpers.open_ids("ids.json"));
+  console.log("]");
+  console.timeEnd("timer");
+  return /* () */0;
 }
+
+var cids = Helpers.open_ids("ids.json");
+
+PromiseMonad.$great$great$neg(Promise.all(Belt_Array.map(Belt_Array.keep("aąbcćdefghijklłmnoóprsśtuwyzźż".split(""), (function (a) {
+                    return a.length > 0;
+                  })), (function (l) {
+                return Fetcher.fetch_api(l.toLocaleUpperCase());
+              }))), (function (htmls) {
+        var html = Caml_splice_call.spliceObjApply("", "concat", [htmls]);
+        var ids = Dumdum.id_of_api(html);
+        return Helpers.write_sync("./ids2.json", JSON.stringify(Belt_Array.keep(ids, (function (id) {
+                              return !Belt_Array.some(cids, (function (a) {
+                                            return a === id;
+                                          }));
+                            }))));
+      }));
 
 main(/* () */0);
 
 var partition_size = 12;
 
+var fetch_id_diff = /* () */0;
+
 exports.partition_size = partition_size;
 exports.main = main;
+exports.fetch_id_diff = fetch_id_diff;
 /*  Not a pure module */

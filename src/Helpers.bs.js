@@ -3,6 +3,7 @@
 
 var Util = require("util");
 var Belt_Array = require("bs-platform/lib/js/belt_Array.js");
+var Caml_array = require("bs-platform/lib/js/caml_array.js");
 var Caml_int32 = require("bs-platform/lib/js/caml_int32.js");
 var Belt_Option = require("bs-platform/lib/js/belt_Option.js");
 var Belt_Result = require("bs-platform/lib/js/belt_Result.js");
@@ -52,12 +53,34 @@ function partitions(arr, partition_size) {
                       })), Belt_Array.reverse));
 }
 
+function arr_lst(arr) {
+  var l = arr.length;
+  if (l === 0) {
+    return ;
+  } else {
+    return Caml_option.some(Caml_array.caml_array_get(arr, l - 1 | 0));
+  }
+}
+
 function open_languages(prim) {
   return ExternalJs.open_languages(prim);
 }
 
 function pointer_of_od(prim) {
   return ExternalJs.pointer_of_od(prim);
+}
+
+function write_sync(prim, prim$1) {
+  ExternalJs.write_sync(prim, prim$1);
+  return /* () */0;
+}
+
+function read_sync(prim) {
+  return ExternalJs.read_sync(prim);
+}
+
+function open_ids(prim) {
+  return ExternalJs.open_ids(prim);
 }
 
 var $question$question = Belt_Option.flatMap;
@@ -78,7 +101,11 @@ exports.get_null = get_null;
 exports.get_null_or = get_null_or;
 exports.hd_tl_arr = hd_tl_arr;
 exports.partitions = partitions;
+exports.arr_lst = arr_lst;
 exports.open_languages = open_languages;
 exports.pointer_of_od = pointer_of_od;
+exports.write_sync = write_sync;
+exports.read_sync = read_sync;
+exports.open_ids = open_ids;
 exports.Operators = Operators;
 /* util Not a pure module */

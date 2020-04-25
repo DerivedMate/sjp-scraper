@@ -34,11 +34,28 @@ let partitions = (arr, partition_size) =>
     ->reverse
   );
 
+let arr_lst = arr => {
+  let l = Belt.Array.length(arr);
+  if (l == 0) {
+    None;
+  } else {
+    Some(arr[l - 1]);
+  };
+};
+
 [@bs.module "./external.js"]
 external open_languages: string => string = "open_languages";
 
 [@bs.module "./external.js"]
 external pointer_of_od: string => string = "pointer_of_od";
+
+[@bs.module "./external.js"]
+external write_sync: (string, string) => unit = "write_sync";
+[@bs.module "./external.js"]
+external read_sync: string => string = "read_sync";
+
+[@bs.module "./external.js"]
+external open_ids: string => array(string) = "open_ids";
 
 module Operators = {
   let (??) = (a, b) => a->Belt.Option.flatMap(b);

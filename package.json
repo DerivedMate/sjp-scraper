@@ -5,7 +5,9 @@
     "clean": "bsb -clean-world",
     "build": "bsb -make-world",
     "watch": "bsb -make-world -w",
-    "start": "node src/Index.bs.js > output.json"
+    "start": "node src/Index.bs.js",
+    "full": "./full.sh output2.json output2.json info.json",
+    "process": "./pr.sh output2.json output2.json info.json"
   },
   "keywords": [
     "BuckleScript"

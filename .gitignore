@@ -25,3 +25,7 @@ lib/bs
 .merlin
 .bsb.lock
 node_modules
+/pages/*
+out*.json
+ids*
+test.json

@@ -2,6 +2,7 @@
 'use strict';
 
 var Block = require("bs-platform/lib/js/block.js");
+var Const = require("./Const.bs.js");
 var Decco = require("decco/src/Decco.js");
 var Dumdum = require("./Dumdum.bs.js");
 var Fetcher = require("./Fetcher.bs.js");
@@ -9,10 +10,10 @@ var Helpers = require("./Helpers.bs.js");
 var Js_dict = require("bs-platform/lib/js/js_dict.js");
 var Js_json = require("bs-platform/lib/js/js_json.js");
 var Cheerio = require("cheerio");
-var Belt_Array = require("bs-platform/lib/js/belt_Array.js");
+var Caml_array = require("bs-platform/lib/js/caml_array.js");
 var Belt_Option = require("bs-platform/lib/js/belt_Option.js");
 var Belt_Result = require("bs-platform/lib/js/belt_Result.js");
-var PromiseMonad = require("bs-promise-monad/src/PromiseMonad.bs.js");
+var Caml_js_exceptions = require("bs-platform/lib/js/caml_js_exceptions.js");
 
 function data_encode(v) {
   return Js_dict.fromArray([
@@ -31,18 +32,6 @@ function data_encode(v) {
               /* tuple */[
                 "origin",
                 Decco.arrayToJson(Decco.stringToJson, v.origin)
-              ],
-              /* tuple */[
-                "classif",
-                Decco.arrayToJson((function (param) {
-                        return Decco.arrayToJson(Decco.stringToJson, param);
-                      }), v.classif)
-              ],
-              /* tuple */[
-                "flex",
-                Decco.arrayToJson((function (param) {
-                        return Decco.arrayToJson(Decco.stringToJson, param);
-                      }), v.flex)
               ]
             ]);
 }
@@ -89,38 +78,12 @@ function data_decode(v) {
                         value: e$3.value
                       }]);
           } else {
-            var match$5 = Decco.arrayFromJson((function (param) {
-                    return Decco.arrayFromJson(Decco.stringFromJson, param);
-                  }), Belt_Option.getWithDefault(Js_dict.get(dict, "classif"), null));
-            if (match$5.tag) {
-              var e$4 = match$5[0];
-              return /* Error */Block.__(1, [{
-                          path: ".classif" + e$4.path,
-                          message: e$4.message,
-                          value: e$4.value
-                        }]);
-            } else {
-              var match$6 = Decco.arrayFromJson((function (param) {
-                      return Decco.arrayFromJson(Decco.stringFromJson, param);
-                    }), Belt_Option.getWithDefault(Js_dict.get(dict, "flex"), null));
-              if (match$6.tag) {
-                var e$5 = match$6[0];
-                return /* Error */Block.__(1, [{
-                            path: ".flex" + e$5.path,
-                            message: e$5.message,
-                            value: e$5.value
-                          }]);
-              } else {
-                return /* Ok */Block.__(0, [{
-                            id: match$1[0],
-                            name: match$2[0],
-                            part: match$3[0],
-                            origin: match$4[0],
-                            classif: match$5[0],
-                            flex: match$6[0]
-                          }]);
-              }
-            }
+            return /* Ok */Block.__(0, [{
+                        id: match$1[0],
+                        name: match$2[0],
+                        part: match$3[0],
+                        origin: match$4[0]
+                      }]);
           }
         }
       }
@@ -145,83 +108,80 @@ var count = {
 function data_of_site(html, id) {
   var dom = Cheerio.load(html);
   var part = Dumdum.part_of_dom(dom);
-  var classif = Dumdum.classif_of_dom(dom);
   var name = Dumdum.name_of_dom(dom);
-  var flex;
-  switch (part) {
-    case "czasownik" :
-        flex = Dumdum.conjugation_of_dom(dom);
-        break;
-    case "przymiotnik" :
-        flex = Dumdum.adjective_of_dom(dom);
-        break;
-    case "rzeczownik" :
-        flex = Dumdum.declension_of_dom(dom);
-        break;
-    default:
-      flex = [];
-  }
   var origin = Dumdum.origins_of_dom(dom, origin_map);
+  if (origin.length !== 0 && Caml_array.caml_array_get(origin, 0) === Const.inline_origin_sig) {
+    count.contents = count.contents + 1 | 0;
+  }
   return {
           id: id,
           name: name,
           part: part,
-          origin: origin,
-          classif: classif,
-          flex: flex
+          origin: origin
         };
 }
 
-function $$process(ids, rest) {
-  return PromiseMonad.$great$great$pipe(PromiseMonad.$great$great$eq(PromiseMonad.$great$great$neg(Promise.all(Belt_Array.map(ids, (function (id) {
-                                return PromiseMonad.$great$great$neg(Fetcher.fetch_id(id), (function (param) {
-                                              return data_of_site(param[0], param[1]);
-                                            }));
-                              }))), (function (words) {
-                        return Belt_Array.forEach(words, (function (w) {
-                                      var w$1 = JSON.stringify(data_encode(w));
-                                      console.log("" + (String(w$1) + ","));
-                                      return /* () */0;
-                                    }));
-                      })), (function (param) {
-                    count.contents = count.contents + ids.length | 0;
-                    var c = count.contents;
-                    console.error("" + (String(c) + ""));
-                    var match = Helpers.hd_tl_arr(rest);
-                    var hd = match[0];
-                    if (hd !== undefined) {
-                      return $$process(hd, match[1]);
-                    } else {
-                      console.log("]");
-                      return Promise.resolve(1);
-                    }
-                  })), (function (e) {
-                var id = Helpers.deep(ids);
-                console.error(e);
-                console.error("id lost: " + (String(id) + ""));
-                var match = Helpers.hd_tl_arr(rest);
-                var tl = match[1];
-                var hd = match[0];
-                if (hd !== undefined) {
-                  return $$process(hd, ids.length === 1 ? tl : Belt_Array.concat(tl, Belt_Array.map(ids, (function (id) {
-                                          return [id];
-                                        }))));
-                } else {
-                  console.log("]");
-                  return Promise.resolve(1);
-                }
-              }));
-}
-
-function explode(ids) {
-  console.log("[");
+function main(ids) {
+  var count_inl = {
+    contents: 0
+  };
+  var count_ptr = {
+    contents: 0
+  };
+  var loop = function (len0, _i, _id, _rest) {
+    while(true) {
+      var rest = _rest;
+      var id = _id;
+      var i = _i;
+      if (id !== undefined) {
+        var id$1 = id;
+        var exit = 0;
+        var html;
+        try {
+          html = Fetcher.html_of_id(id$1);
+          exit = 1;
+        }
+        catch (raw_e){
+          var e = Caml_js_exceptions.internalToOCamlException(raw_e);
+          console.error("" + (String(id$1) + (" => " + (String(e) + ""))));
+          var match = Helpers.hd_tl_arr(rest);
+          loop(len0, i, match[0], match[1]);
+        }
+        if (exit === 1) {
+          var wd = data_of_site(html, id$1);
+          var w = JSON.stringify(data_encode(wd));
+          if (i === len0 && rest.length === 0) {
+            console.log("" + (String(w) + ""));
+          } else {
+            console.log("" + (String(w) + ","));
+          }
+          if (wd.origin.length !== 0) {
+            if (Caml_array.caml_array_get(wd.origin, 0) === Const.pointer_sig) {
+              count_ptr.contents = count_ptr.contents + 1 | 0;
+            } else if (Caml_array.caml_array_get(wd.origin, 0) === Const.inline_origin_sig) {
+              count_inl.contents = count_inl.contents + 1 | 0;
+            }
+            
+          }
+          
+        }
+        var c = count.contents;
+        var inl = count_inl.contents;
+        var ptr = count_ptr.contents;
+        var pr = (i / len0 * 100).toFixed(2);
+        console.error("Progress: " + (String(i) + ("/" + (String(len0) + (" [" + (String(pr) + ("]; NoOri: " + (String(c) + ("; Ptr: " + (String(ptr) + ("; Inl: " + (String(inl) + ""))))))))))));
+        var match$1 = Helpers.hd_tl_arr(rest);
+        _rest = match$1[1];
+        _id = match$1[0];
+        _i = i + 1 | 0;
+        continue ;
+      } else {
+        return /* () */0;
+      }
+    };
+  };
   var match = Helpers.hd_tl_arr(ids);
-  var hd = match[0];
-  if (hd !== undefined) {
-    return $$process(hd, match[1]);
-  } else {
-    return Promise.resolve(1);
-  }
+  return loop(ids.length, 1, match[0], match[1]);
 }
 
 exports.data_encode = data_encode;
@@ -231,6 +191,5 @@ exports.words_decode = words_decode;
 exports.origin_map = origin_map;
 exports.count = count;
 exports.data_of_site = data_of_site;
-exports.$$process = $$process;
-exports.explode = explode;
+exports.main = main;
 /* origin_map Not a pure module */

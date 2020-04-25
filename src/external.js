@@ -62,6 +62,13 @@ const pointer_of_od = p => {
 
   return str.trim().toLocaleLowerCase()
 }
+const write_sync = (dir, content) => {
+  fs.writeFileSync(dir, content, { encoding: 'utf8' })
+}
+
+const read_sync = file => fs.readFileSync(file, { encoding: 'utf8' })
+
+const open_ids = dir => JSON.parse(fs.readFileSync(dir, { encoding: 'utf8' }))
 
 module.exports.f = f
 module.exports.fetch_id = fetch_id
@@ -69,3 +76,6 @@ module.exports.clean_declension = clean_declension
 module.exports.clean_conjugation = clean_conjugation
 module.exports.open_languages = open_languages
 module.exports.pointer_of_od = pointer_of_od
+module.exports.write_sync = write_sync
+module.exports.read_sync = read_sync
+module.exports.open_ids = open_ids
