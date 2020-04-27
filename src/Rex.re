@@ -2,10 +2,10 @@ let re_id_of_url = [%bs.re "/\d+/"];
 let re_pref = [%bs.re "/\-$/"];
 let re_pais = [%bs.re "/\(państwo\)$/"];
 
-let re_zob_fst = [%bs.re "/zob\.\s*([a-ząęłóśćżźá]+)/iu"];
-let re_zob_lst = [%bs.re "/\s?([a-ząęłóśćżźá]+)\s?\(zob\.\)/iu"];
-let re_od_fst = [%bs.re "/od:?\s*([a-z\(\)ąęłóśćżźá]+)/iu"];
-let re_od_lst = [%bs.re "/od:?\s*([\w\(\)-ąęłóśćżźá]+\s?,?)+/iu"];
+let re_zob_fst = [%bs.re "/zob\.\s*([a-ząęłóśćżźáń]+)/iu"];
+let re_zob_lst = [%bs.re "/\s?([a-ząęłóśćżźáń]+)\s?\(zob\.\)/iu"];
+let re_od_fst = [%bs.re "/od:?\s*([a-z\(\)ąęłóśćżźáń]+)/iu"];
+let re_od_lst = [%bs.re "/od:?\s*([\w\(\)-ąęłóśćżźáń]+\s?,?)+/iu"];
 
 let id_of_url = url => {
   switch (Js.Re.exec_(re_id_of_url, url)) {

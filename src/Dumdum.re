@@ -203,13 +203,8 @@ let origins_of_dom = (dom, map) => {
 
   switch (explicit_origins->Belt.Array.length) {
   | 0 =>
-    let raw =
-      dom
-      ->Cheerio.select(".pochodzenie_uwagi")
-      ->Element.get1(1)
-      ->Element.load
-      ->Element.text0
-      ->Helpers.get_null_or("");
+    let poch = dom->Cheerio.select(".pochodzenie_uwagi");
+    let raw = poch->Element.text0->Helpers.get_null_or("");
 
     let arr =
       switch (
@@ -224,6 +219,9 @@ let origins_of_dom = (dom, map) => {
       | (_, _, _, Some(r)) => r->Js.Re.captures
       | _ => [||]
       };
+
+    Js.Console.log(raw);
+    Js.Console.log(arr);
 
     let origin =
       switch (Helpers.arr_lst(arr)) {

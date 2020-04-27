@@ -195,7 +195,8 @@ function origins_of_dom(dom, map) {
   if (match !== 0) {
     return explicit_origins;
   } else {
-    var raw = Helpers.get_null_or(Cheerio(Cheerio$BsCheerio.select(dom, ".pochodzenie_uwagi").get(1)).text(), "");
+    var poch = Cheerio$BsCheerio.select(dom, ".pochodzenie_uwagi");
+    var raw = Helpers.get_null_or(poch.text(), "");
     var match$1 = Rex.re_zob_fst.exec(raw);
     var match$2 = Rex.re_zob_lst.exec(raw);
     var match$3 = Rex.re_od_fst.exec(raw);
@@ -207,6 +208,8 @@ function origins_of_dom(dom, map) {
               )
           )
       );
+    console.log(raw);
+    console.log(arr);
     var match$5 = Helpers.arr_lst(arr);
     var origin = match$5 !== undefined ? Helpers.get_null(Caml_option.valFromOption(match$5)).trim() : "";
     var match$6 = rex_pais(map, raw);

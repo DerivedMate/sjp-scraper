@@ -1,5 +1,6 @@
 // @ts-check
 require('isomorphic-fetch')
+const XRegExp = require('xregexp');
 const fs = require('fs')
 
 const f = a =>

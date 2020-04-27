@@ -12,13 +12,13 @@ var re_pref = /\-$/;
 
 var re_pais = /\(państwo\)$/;
 
-var re_zob_fst = /zob\.\s*([a-ząęłóśćżźá]+)/iu;
+var re_zob_fst = /zob\.\s*([a-ząęłóśćżźáń]+)/iu;
 
-var re_zob_lst = /\s?([a-ząęłóśćżźá]+)\s?\(zob\.\)/iu;
+var re_zob_lst = /\s?([a-ząęłóśćżźáń]+)\s?\(zob\.\)/iu;
 
-var re_od_fst = /od:?\s*([a-z\(\)ąęłóśćżźá]+)/iu;
+var re_od_fst = /od:?\s*([a-z\(\)ąęłóśćżźáń]+)/iu;
 
-var re_od_lst = /od:?\s*([\w\(\)-ąęłóśćżźá]+\s?,?)+/iu;
+var re_od_lst = /od:?\s*([\w\(\)-ąęłóśćżźáń]+\s?,?)+/iu;
 
 function id_of_url(url) {
   var match = re_id_of_url.exec(url);

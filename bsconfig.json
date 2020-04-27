@@ -16,6 +16,7 @@
     "bs-promise-monad",
     "bs-webapi",
     "bs-cheerio",
-    "decco"
+    "decco",
+    "bs-xregexp"
   ]
 }
